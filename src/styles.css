@@ -32,6 +32,8 @@ body { min-width: 320px; }
 .sync-card { position: absolute; right: 12px; bottom: 14px; left: 12px; display: grid; gap: 5px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: rgba(255,255,255,.04); }
 .sync-card strong { font-size: 12px; }
 .sync-card span { color: #91a7b1; font-size: 10px; }
+.role-card { display: grid; gap: 8px; margin: 0 12px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: rgba(255,255,255,.04); }
+.role-card-label { color: #91a7b1; font-size: 11px; }
 .mobile-header { display: none; background: #15313d; }
 
 .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
@@ -49,6 +51,7 @@ body { min-width: 320px; }
 .timeline-item { padding: 0 0 16px 14px; border-left: 2px solid #cbd8dc; position: relative; }
 .timeline-item:before { content: ""; position: absolute; left: -5px; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: #277984; box-shadow: 0 0 0 3px white; }
 .review-grid, .report-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; }
+.reconcile-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; align-items: start; }
 .review-box { padding: 16px; }
 .report-sheet { padding: 24px; }
 .report-sheet h2 { margin: 0 0 4px; }
@@ -63,5 +66,5 @@ body { min-width: 320px; }
   .mobile-header { display: flex; align-items: center; gap: 8px; color: white; }
   .mobile-header .ant-typography { color: white; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
-  .review-grid, .report-grid { grid-template-columns: 1fr; }
+  .review-grid, .report-grid, .reconcile-grid { grid-template-columns: 1fr; }
 }

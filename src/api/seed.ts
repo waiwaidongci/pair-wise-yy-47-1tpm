@@ -1,7 +1,7 @@
 import type { Issue } from './types'
 
-const commonHistory = (title: string) => [
-  { at: '09-22 10:35', actor: '李予 / 审核员', action: '创建问题', detail: `录入 ${title}，并关联页面录屏。` },
+const commonHistory = (title: string): Issue['history'] => [
+  { at: '09-22 10:35', actor: '李予', actorRole: '审核员', action: '创建问题', detail: `录入 ${title}，并关联页面录屏。` },
   { at: '09-24 16:10', actor: '系统', action: '根因聚类', detail: '与同类问题合并，保留子问题追溯关系。' },
 ]
 
@@ -24,6 +24,8 @@ export const seedIssues: Issue[] = [
     owner: '何沐',
     dueDate: '2026-10-06',
     mergedKeys: ['A11Y-1052', 'A11Y-1061'],
+    createdBy: '李予',
+    createdByRole: '审核员',
     retestRecords: [],
     history: commonHistory('筛选抽屉键盘陷阱'),
   },
@@ -45,9 +47,15 @@ export const seedIssues: Issue[] = [
     owner: '何沐',
     dueDate: '2026-10-03',
     mergedKeys: [],
+    createdBy: '李予',
+    createdByRole: '审核员',
     fixNote: '增加关闭后的 triggerRef.focus 恢复逻辑。',
+    fixSubmittedBy: '何沐',
     retestEnv: 'Chrome 140 / VoiceOver / 商城 v4.18.3',
-    retestRecords: [{ id: 'RT-22', actor: '苏禾', result: '通过', note: '焦点返回触发按钮，顺序正确。', at: '09-28 14:20' }],
+    retestEnvExpiresAt: '2026-09-30',
+    retestRecords: [
+      { id: 'RT-22', actor: '苏禾', actorRole: '复测员', result: '通过', note: '焦点返回触发按钮，顺序正确。', at: '09-28 14:20', evidenceHash: 'EV-1052-OLD0' },
+    ],
     history: commonHistory('客服弹窗焦点恢复'),
   },
   {
@@ -68,6 +76,8 @@ export const seedIssues: Issue[] = [
     owner: '待分配',
     dueDate: '2026-10-10',
     mergedKeys: [],
+    createdBy: '李予',
+    createdByRole: '审核员',
     retestRecords: [],
     history: commonHistory('优惠券选择层键盘循环'),
   },
@@ -89,8 +99,12 @@ export const seedIssues: Issue[] = [
     owner: '赵屿',
     dueDate: '2026-10-09',
     mergedKeys: [],
+    createdBy: '李予',
+    createdByRole: '审核员',
     fixNote: '更换色板并增加虚线纹理和可切换数据表。',
+    fixSubmittedBy: '赵屿',
     retestEnv: 'Safari 26 / 对比度工具 / admin-v2.7.5',
+    retestEnvExpiresAt: '2026-10-20',
     retestRecords: [],
     history: commonHistory('图表颜色对比度'),
   },
@@ -112,8 +126,13 @@ export const seedIssues: Issue[] = [
     owner: '顾雪',
     dueDate: '2026-10-05',
     mergedKeys: [],
+    createdBy: '李予',
+    createdByRole: '审核员',
     fixNote: '计划仅增加视觉错误颜色。',
-    retestRecords: [{ id: 'RT-31', actor: '李予', result: '退回', note: '仍需接入 aria-live，并验证字段 aria-describedby。', at: '09-28 11:05' }],
+    fixSubmittedBy: '顾雪',
+    retestRecords: [
+      { id: 'RT-31', actor: '苏禾', actorRole: '复测员', result: '退回', note: '仍需接入 aria-live，并验证字段 aria-describedby。', at: '09-28 11:05', evidenceHash: 'EV-1083-4E5F' },
+    ],
     history: commonHistory('表单错误提示'),
   },
 ]

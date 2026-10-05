@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Issue } from '../api/types'
 import { seedIssues } from '../api/seed'
+import { upgradeLegacyIssue } from '../api/legacy'
 
 type SavedFilter = { id: string; name: string; query: string; site: string; status: string; priority: string }
 
@@ -59,7 +60,15 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }),
     {
       name: 'accessibility-remediation-v1',
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as { issues?: Issue[] }
+        // 旧数据升级：按创建人补角色归属，旧复测环境一律视为过期
+        if (version < 2 && Array.isArray(state?.issues)) {
+          state.issues = state.issues.map((issue) => upgradeLegacyIssue(issue))
+        }
+        return state
+      },
     },
   ),
 )

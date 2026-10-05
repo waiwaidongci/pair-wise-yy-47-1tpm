@@ -1,8 +1,9 @@
 import { Button, Progress, Space, Tag, Typography } from 'antd'
-import { ArrowRightOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { ArrowRightOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useIssues } from '../api/useIssues'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
+import { computeBlockers } from '../utils/blockers'
 
 export default function DashboardPage() {
   useIssues()
@@ -12,6 +13,7 @@ export default function DashboardPage() {
   const passed = issues.filter((item) => item.status === '已通过').length
   const critical = issues.filter((item) => item.impact === '致命' || item.impact === '严重').length
   const coverage = Math.round((passed / issues.length) * 100)
+  const blockerCount = computeBlockers(issues).length
   const bySite = Array.from(new Set(issues.map((item) => item.site))).map((site) => {
     const items = issues.filter((issue) => issue.site === site)
     return { site, total: items.length, passed: items.filter((item) => item.status === '已通过').length }
@@ -58,14 +60,15 @@ export default function DashboardPage() {
           <div className="panel-head"><h3>处理关注</h3><span className="muted">智能排序</span></div>
           <div style={{ padding: 12 }}>
             {[
-              { icon: <ExclamationCircleOutlined />, tone: '#ba4d31', title: 'P0 键盘陷阱', detail: 'A11Y-1048 已修复但尚未提交复测', action: '前往复测' },
-              { icon: <ClockCircleOutlined />, tone: '#ba8529', title: '2 项临近截止', detail: '未来 3 天内到期，涉及基础组件组', action: '查看排期' },
-              { icon: <CheckCircleOutlined />, tone: '#367d61', title: '重复问题合并节省 6 次处理', detail: '根因“Drawer focus trap”关联 3 项问题', action: '查看合并关系' },
+              ...(blockerCount > 0 ? [{ icon: <StopOutlined />, tone: '#b83226', title: `${blockerCount} 项导出阻塞`, detail: '缺复测员判定或复测环境过期，不会进入整改报告', action: '查看阻塞项', to: '/report' } as const] : []),
+              { icon: <ExclamationCircleOutlined />, tone: '#ba4d31', title: 'P0 键盘陷阱', detail: 'A11Y-1048 已修复但尚未提交复测', action: '前往复测', to: '/retest' },
+              { icon: <ClockCircleOutlined />, tone: '#ba8529', title: '2 项临近截止', detail: '未来 3 天内到期，涉及基础组件组', action: '查看排期', to: '/issues' },
+              { icon: <CheckCircleOutlined />, tone: '#367d61', title: '重复问题合并节省 6 次处理', detail: '根因“Drawer focus trap”关联 3 项问题', action: '查看合并关系', to: '/issues' },
             ].map((item) => (
               <div key={item.title} style={{ display: 'flex', gap: 10, padding: 12, borderBottom: '1px solid #edf1f2' }}>
                 <span style={{ color: item.tone, fontSize: 20 }}>{item.icon}</span>
                 <div style={{ flex: 1 }}><Typography.Text strong>{item.title}</Typography.Text><Typography.Paragraph type="secondary" style={{ margin: '5px 0 0', fontSize: 12 }}>{item.detail}</Typography.Paragraph></div>
-                <Button size="small" type="link" onClick={() => navigate('/retest')}>{item.action}</Button>
+                <Button size="small" type="link" onClick={() => navigate(item.to)}>{item.action}</Button>
               </div>
             ))}
           </div>
