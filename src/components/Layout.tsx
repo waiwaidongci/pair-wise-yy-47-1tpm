@@ -9,6 +9,7 @@ import {
   FileDoneOutlined,
   MenuOutlined,
 } from '@ant-design/icons'
+import RoleSwitcher from './RoleSwitcher'
 
 const items = [
   { key: '/', icon: <AppstoreOutlined />, label: <NavLink to="/">整改总览</NavLink> },
@@ -27,6 +28,7 @@ export default function AppLayout() {
         <div><strong>无障碍整改中心</strong><small>企业数字体验治理</small></div>
       </div>
       <Menu mode="inline" theme="dark" items={items} selectedKeys={[location.pathname]} onClick={() => setOpen(false)} />
+      <div className="sidebar-role"><RoleSwitcher /></div>
       <div className="sync-card"><Tag color="success">正常</Tag><strong>规则库 2026.09</strong><span>最后同步 16:42</span></div>
     </div>
   )
@@ -40,6 +42,7 @@ export default function AppLayout() {
           <Button type="text" icon={<MenuOutlined />} onClick={() => setOpen(true)} />
           <Typography.Text strong>无障碍整改中心</Typography.Text>
           <Space />
+          <RoleSwitcher />
         </Layout.Header>
         <Layout.Content><Outlet /></Layout.Content>
       </Layout>

@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { Button, Checkbox, Select, Space, Table, Tag, Typography, message } from 'antd'
+import { ReloadOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
 import { useIssues } from '../api/useIssues'
 import { useWorkspaceStore } from '../store/useWorkspaceStore'
 
 export default function VersionsPage() {
   useIssues()
   const issues = useWorkspaceStore((state) => state.issues)
+  const evidence = useWorkspaceStore((state) => state.evidence)
+  const batches = useWorkspaceStore((state) => state.batches)
+  const reconcileAll = useWorkspaceStore((state) => state.reconcileAll)
+  const retryBatch = useWorkspaceStore((state) => state.retryBatch)
+  const [reconciling, setReconciling] = useState(false)
   const [accepted, setAccepted] = useState<string[]>(['A11Y-1074'])
   const diffs = issues
     .filter((item) => ['A11Y-1048', 'A11Y-1074', 'A11Y-1083'].includes(item.key))
@@ -53,6 +59,81 @@ export default function VersionsPage() {
             { title: '风险', dataIndex: 'risk', width: 80, render: (value) => <Tag color={value === '中' ? 'gold' : 'green'}>{value}</Tag> },
           ]}
         />
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3>外部证据对账</h3>
+          <Space>
+            <Tag color="blue">站点容量 2 项/批</Tag>
+            <Button
+              type="primary"
+              icon={<SafetyCertificateOutlined />}
+              loading={reconciling}
+              onClick={async () => {
+                setReconciling(true)
+                try {
+                  await reconcileAll()
+                  message.success('对账完成：失败批次整批保留，可逐批重试')
+                } finally {
+                  setReconciling(false)
+                }
+              }}
+            >
+              与证据对账（按站点分批）
+            </Button>
+          </Space>
+        </div>
+        <div style={{ padding: 16 }}>
+          <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
+            版本对不上立即重算结论；证据哈希一变，已通过结论立即失效。每批按站点容量核对，失败整批保留重试，重复批次沿用首次结果。
+          </Typography.Paragraph>
+          {batches.length === 0 && <Typography.Text type="secondary">尚未对账。</Typography.Text>}
+          <div className="batch-grid">
+            {batches.map((batch) => (
+              <div key={batch.id} className={`batch-card ${batch.status}`}>
+                <Space wrap>
+                  <Tag color={batch.status === 'succeeded' ? 'success' : 'error'}>{batch.status === 'succeeded' ? '已对账' : '失败'}</Tag>
+                  <Typography.Text strong>{batch.site}</Typography.Text>
+                  <Typography.Text type="secondary">第 {batch.attempt} 次尝试</Typography.Text>
+                  {batch.duplicate && <Tag color="default">重复批次·沿用首次结果</Tag>}
+                </Space>
+                <div className="batch-keys"><Space wrap>{batch.keys.map((key) => <Tag key={key}>{key}</Tag>)}</Space></div>
+                {batch.status === 'failed' ? (
+                  <>
+                    <Typography.Text type="danger">{batch.reason}</Typography.Text>
+                    <div style={{ marginTop: 8 }}>
+                      <Button size="small" icon={<ReloadOutlined />} onClick={() => retryBatch(batch)}>整批重试</Button>
+                    </div>
+                  </>
+                ) : (
+                  <ul style={{ margin: 0, paddingInlineStart: 18, fontSize: 12 }}>
+                    {batch.results?.map((result) => (
+                      <li key={result.key}><Typography.Text strong>{result.key}</Typography.Text> {result.actions.join('；')}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+          {evidence.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <Typography.Title level={5}>证据注册表</Typography.Title>
+              <Table
+                rowKey="url"
+                size="small"
+                pagination={false}
+                dataSource={evidence}
+                columns={[
+                  { title: '证据链接', dataIndex: 'url', render: (value) => <Typography.Link href={value} target="_blank">{value}</Typography.Link> },
+                  { title: '版本', dataIndex: 'version', width: 100 },
+                  { title: '哈希', dataIndex: 'hash', width: 180 },
+                  { title: '更新时间', dataIndex: 'updatedAt', width: 120 },
+                ]}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 14 }}>
